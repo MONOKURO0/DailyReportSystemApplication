@@ -77,7 +77,7 @@ public class EmployeeService {
         System.out.println("従業員更新　update処理開始");
 
         // 従業員コードからパラメータ引継ぎ用employeeをひっぱってくる
-        Employee employee2 = findByCode(code);
+        Employee employee_old = findByCode(code);
 
         // パスワードチェック
         if ( !("".equals(employee.getPassword())) ) {
@@ -89,13 +89,13 @@ public class EmployeeService {
         } else {
             // パスワードが空白の場合
             // 前回の値を引き継ぐ
-            employee.setPassword(employee2.getPassword());
+            employee.setPassword(employee_old.getPassword());
         }
 
         employee.setDeleteFlg(false);
 
         LocalDateTime now = LocalDateTime.now();
-        employee.setCreatedAt(employee2.getCreatedAt());
+        employee.setCreatedAt(employee_old.getCreatedAt());
         employee.setUpdatedAt(now);
 
         System.out.println("従業員更新　パラメータ更新完了");
