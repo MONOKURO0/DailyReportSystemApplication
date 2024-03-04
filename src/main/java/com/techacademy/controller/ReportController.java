@@ -24,15 +24,8 @@ import com.techacademy.service.ReportService;
 @RequestMapping("reports")
 public class ReportController {
 
-    //private final EmployeeService employeeService;
     private final ReportService reportService;
 
-    /*
-    @Autowired
-    public EmployeeController(EmployeeService employeeService) {
-        this.employeeService = employeeService;
-    }
-    */
     @Autowired
     public ReportController(ReportService reportService) {
         this.reportService = reportService;
@@ -42,13 +35,9 @@ public class ReportController {
     // 日報一覧画面
     @GetMapping
     public String list(Model model) {
-
-        //model.addAttribute("listSize", employeeService.findAll().size());
-        //model.addAttribute("employeeList", employeeService.findAll());
         model.addAttribute("listSize", reportService.findAll().size());
         model.addAttribute("reportList", reportService.findAll());
 
-        //return "employees/list";
         return "reports/list";
     }
 
