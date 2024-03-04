@@ -2,10 +2,13 @@
 package com.techacademy.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.validator.constraints.Length;
 
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -34,6 +37,11 @@ public class Employee {
             return this.name;
         }
     }
+
+    // tagHattoriWork
+    // リレーション
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    private List<Report> reportList;
 
     // ID
     @Id

@@ -16,7 +16,9 @@ public class TopController {
     // ログイン後のトップページ表示
     @GetMapping(value = "/")
     public String top() {
-        return "redirect:/employees";
+        // tagHattoriWork
+        //return "redirect:/employees";
+        return "redirect:/reports";
     }
 
 }
