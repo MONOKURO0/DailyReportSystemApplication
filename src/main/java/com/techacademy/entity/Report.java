@@ -73,7 +73,6 @@ public class Report {
     private Employee employee;
 
 
-
     // 削除フラグ(論理削除を行うため)
     // 物理名：delete_flg
     @Column(columnDefinition="TINYINT", nullable = false)

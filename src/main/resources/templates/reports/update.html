@@ -1,8 +1,9 @@
 <!-- tagHattoriWork -->
 <!DOCTYPE html>
-<html class="h-100" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<!-- <html class="h-100" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"> -->
+<html class="h-100" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="common/header :: head_fragment(title=日報新規登録)"></head>
+<head th:replace="common/header :: head_fragment(title=日報更新)"></head>
 
 <body class="h-100 overflow-hidden">
     <div class="row h-100">
@@ -13,7 +14,7 @@
         <div class="mt-3 h-100 col-sm-10">
             <!-- コンテンツ -->
             <div class="container-fluid p-0">
-                <h1 class="h3 mb-3">日報 新規登録</h1>
+                <h1 class="h3 mb-3">日報 更新</h1>
             </div>
             <div class="col-12 col-xxl-6">
 
@@ -21,7 +22,8 @@
                     <div class="card">
                         <div class="card-body">
 
-                            <form th:action="@{/reports/add}" th:object="${report}" th:method="post">
+
+                            <form th:action="@{/reports/{id}/update(id=${id})}" th:object="${report}" th:method="post">
 
                                 <div class="wizard wizard-success mb-4">
                                     <div class="mb-3">
@@ -37,7 +39,7 @@
                                         <label class="form-label" for="name">氏名</label>
                                         <p class="mb-1"></p>
                                         <div class="col-md-7">
-                                            <span sec:authentication="principal.employee.name"></span>
+                                            <td class="align-middle" th:text="${report.employee.name}"></td>
                                         </div>
                                     </div>
 
@@ -56,14 +58,13 @@
                                         <div class="col-md-7">
                                             <textarea class="form-control" th:field="*{content}" th:errorclass="err" id="content" rows="10" cols="60"></textarea>
                                             <span th:errors="*{content}" class="text-danger"></span>
-
                                         </div>
                                     </div>
 
                                 </div>
 
                                 <p class="mt-5">
-                                    <input type="submit" value="登録" class="btn btn-primary">
+                                    <input type="submit" value="更新" class="btn btn-primary">
                                     <a th:href="@{/reports}" class="btn btn-primary">戻る</a>
                                 </p>
                             </form>

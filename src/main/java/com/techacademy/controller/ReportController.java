@@ -1,6 +1,8 @@
 // tagHattoriWork
 package com.techacademy.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +21,7 @@ import com.techacademy.constants.ErrorMessage;
 
 import com.techacademy.entity.Report;
 import com.techacademy.service.ReportService;
+import com.techacademy.service.UserDetail;
 
 @Controller
 @RequestMapping("reports")
@@ -34,145 +37,149 @@ public class ReportController {
 
     // 日報一覧画面
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("listSize", reportService.findAll().size());
-        model.addAttribute("reportList", reportService.findAll());
+    public String list(Model model, @AuthenticationPrincipal UserDetail userDetail) {
+        // 管理者権限判定用の文字列を用意する
+        String roleAdmin = "ADMIN";
+
+        System.out.println("ログイン権限:"+userDetail.getEmployee().getRole());
+
+        if( userDetail.getEmployee().getRole().toString().equals(roleAdmin)) {
+            System.out.println("ADMIN権限処理");
+
+            model.addAttribute("reportList", reportService.findAll());
+            model.addAttribute("listSize", reportService.findAll().size());
+
+        }else {
+            System.out.println("GENERAL権限処理");
+
+            // 20240309_work:エラーが発生するため、正しい取得処理を実装する
+            model.addAttribute("reportList", reportService.findCode(userDetail));
+            // 20240309_work:sizeを使用できる型で仕様の件数取得処理を実装する必要がある
+            model.addAttribute("listSize", reportService.findCode(userDetail).size());
+        }
+        // debug用
+        //model.addAttribute("listSize", reportService.findCode(userDetail).size());
 
         return "reports/list";
     }
 
+    // 日報詳細画面
+    @GetMapping(value = "/{id}/")
+    public String detail(@PathVariable Integer id, Model model) {
+        model.addAttribute("report", reportService.findById(id));
 
-
-
-
-    /*
-    // 従業員詳細画面
-    @GetMapping(value = "/{code}/")
-    public String detail(@PathVariable String code, Model model) {
-
-        model.addAttribute("employee", employeeService.findByCode(code));
-        return "employees/detail";
+        return "reports/detail";
     }
-    */
 
     // 日報新規登録画面
     @GetMapping(value = "/add")
     public String create(@ModelAttribute Report report) {
-    //public String report_create() {
+    //public String create() {
+        //public String report_create() {
+        System.out.println("日報新規登録 Get");
 
         return "reports/new";
     }
 
-    /*
     // tagHattoriWork
-    // 従業員更新画面
-    @GetMapping(value = "/{code}/update")
-    public String edit(@PathVariable String code, Model model) {
-        System.out.println("従業員更新 Get");
+    // 日報更新画面
+    @GetMapping(value = "/{id}/update")
+    public String edit(@PathVariable Integer id, Model model) {
+        System.out.println("日報更新 Get");
 
-        model.addAttribute("employee", employeeService.findByCode(code));
-        return "employees/update";
+        //model.addAttribute("employee", employeeService.findByCode(code));
+        model.addAttribute("report", reportService.findById(id));
+
+        return "reports/update";
     }
-    */
 
-    // 従業員新規登録処理
+    // 日報新規登録処理
     @PostMapping(value = "/add")
-    //public String add(@Validated Employee employee, BindingResult res, Model model) {
-    public String add(@Validated Report report, BindingResult res, Model model) {
-
-        // パスワード空白チェック
-        /*
-         * エンティティ側の入力チェックでも実装は行えるが、更新の方でパスワードが空白でもチェックエラーを出さずに
-         * 更新出来る仕様となっているため上記を考慮した場合に別でエラーメッセージを出す方法が簡単だと判断
-         */
-        /*
-        if ("".equals(employee.getPassword())) {
-            // パスワードが空白だった場合
-            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
-                    ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));
-
-            return create(employee);
-
-        }
-        */
+    //public String add(@Validated Report report, @AuthenticationPrincipal UserDetail userDetail, BindingResult res, Model model) {
+    public String add(@Validated Report report, BindingResult res, Model model, @AuthenticationPrincipal UserDetail userDetail) {
+        System.out.println("日報新規登録 Post");
 
         // 入力チェック
         if (res.hasErrors()) {
+            System.out.println("日報新規登録 入力エラー");
+
             return create(report);
+            //return "reports/new";
         }
 
-        /*
         // 論理削除を行った従業員番号を指定すると例外となるためtry~catchで対応
         // (findByIdでは削除フラグがTRUEのデータが取得出来ないため)
         try {
-            ErrorKinds result = employeeService.save(employee);
+            ErrorKinds result = reportService.save(report, userDetail);
+            //ErrorKinds result = reportService.save(report);
 
             if (ErrorMessage.contains(result)) {
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                return create(employee);
+                return create(report);
             }
 
         } catch (DataIntegrityViolationException e) {
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
                     ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
-            return create(employee);
+            return create(report);
         }
-        */
 
-        //return "redirect:/employees";
         return "redirect:/reports";
     }
 
-    /*
-    // 従業員削除処理
-    @PostMapping(value = "/{code}/delete")
-    public String delete(@PathVariable String code, @AuthenticationPrincipal UserDetail userDetail, Model model) {
-
-        ErrorKinds result = employeeService.delete(code, userDetail);
+    // 日報削除処理
+    @PostMapping(value = "/{id}/delete")
+    public String delete(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
+        ErrorKinds result = reportService.delete(id, userDetail);
 
         if (ErrorMessage.contains(result)) {
             model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-            model.addAttribute("employee", employeeService.findByCode(code));
-            return detail(code, model);
+            model.addAttribute("report", reportService.findById(id));
+            return detail(id, model);
         }
 
-        return "redirect:/employees";
+        return "redirect:/reports";
     }
 
+    // 日報更新処理
+    @PostMapping(value = "/{id}/update")
+    //public String update(@Validated Report report, BindingResult res, @PathVariable int id, Model model ) {
+    //public String update(@PathVariable int id, @AuthenticationPrincipal UserDetail userDetail, Model model, @Validated Report report, BindingResult res) {
+    //public String update(@Validated Report report, BindingResult res, @PathVariable Integer id, Model model, @AuthenticationPrincipal UserDetail userDetail ) {
+    public String update(@Validated Report report, BindingResult res, @PathVariable Integer id, Model model, @AuthenticationPrincipal UserDetail userDetail ) {
 
-    // tagHattoriWork
-    // 従業員更新処理
-    @PostMapping(value = "/{code}/update")
-    public String update(@Validated Employee employee, BindingResult res, @PathVariable String code, Model model) {
-
-        System.out.println("従業員更新 Post");
+        System.out.println("日報更新 Post");
 
         // 入力チェック
         if (res.hasErrors()) {
-            System.out.println("従業員更新 hasErrors");
+            System.out.println("日報更新 hasErrors");
 
-            //return edit(code, model);
-            return "employees/update";
+            //return edit(id, model);
+            return "reports/update";
         }
 
         try {
-            ErrorKinds result = employeeService.update(employee, code);
+            // 20240309_work:employeeがnullになる問題
+            //ErrorKinds result = reportService.update(report, id);
+            ErrorKinds result = reportService.update(report, id, userDetail.getEmployee());
 
             if (ErrorMessage.contains(result)) {
-                System.out.println("従業員更新 ErrorMessage");
+                System.out.println("日報更新 ErrorMessage");
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                return edit(code, model);
+                return edit(id, model);
+                //return edit(Integer.parseInt(id), model);
             }
 
         } catch (DataIntegrityViolationException e) {
             // 想定外の問題が発生した場合、従業員更新画面に戻す。
-            return edit(code, model);
+            System.out.println("日報更新 想定外");
+            return edit(id, model);
+            //return edit(Integer.parseInt(id), model);
         }
 
-        System.out.println("従業員更新 redirect");
-        return "redirect:/employees";
+        System.out.println("日報更新 redirect");
+        return "redirect:/reports";
 
     }
-    */
 
 }
