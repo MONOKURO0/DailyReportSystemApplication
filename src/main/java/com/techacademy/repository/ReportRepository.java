@@ -14,6 +14,6 @@ import com.techacademy.entity.Report;
 //public interface ReportRepository extends JpaRepository<Employee, String> {
 public interface ReportRepository extends JpaRepository<Report, String> {
     // 2024/03/06_work
-    Optional<Report> findByEmployee(Employee employee);
+    List<Report> findByEmployee(Employee employee);
     //List<Report> RfindByEmployee(Employee employee);
 }

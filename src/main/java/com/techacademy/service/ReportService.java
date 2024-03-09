@@ -133,13 +133,11 @@ public class ReportService {
 
     // 日報一覧表示処理
     //@PreAuthorize("hasAuthority('ADMIN')")
-    @Transactional
     public List<Report> findAll() {
         return reportRepository.findAll();
     }
 
     // 日報一覧表示処理
-    @Transactional
     public List<Report> findCode(UserDetail userDetail) {
         //return reportRepository.RfindByEmployee(userDetail.getEmployee());
         //return reportRepository.findAll();
@@ -160,18 +158,21 @@ public class ReportService {
 
     // 指定した従業員の日報全てを検索
     // 2024/03/06_work
-    //public Report findByCode(String code) {
-    //public Report findByCode(Employee employee) {
-    public Report findByCode(UserDetail userDetail) {
+    // public Report findByCode(String code) {
+    // public Report findByCode(Employee employee) {
+    // public Report findByCode(UserDetail userDetail) {
+    public List<Report> findByCode(UserDetail userDetail) {
 
         // findByIdで検索
-        //Optional<Report> option = reportRepository.findById(code);
-        //Optional<Report> option = reportRepository.findByCode(userDetail.getEmployee().getCode());
-        Optional<Report> option = reportRepository.findByEmployee(userDetail.getEmployee());
+        // Optional<Report> option = reportRepository.findById(code);
+        // Optional<Report> option =
+        // reportRepository.findByCode(userDetail.getEmployee().getCode());
+        //Optional<Report> option = reportRepository.findByEmployee(userDetail.getEmployee());
+        List<Report> reps = reportRepository.findByEmployee(userDetail.getEmployee());
 
         // 取得できなかった場合はnullを返す
-        Report report = option.orElse(null);
-        return report;
+        //Report report = option.orElse(null);
+        return reps;
     }
 
 }

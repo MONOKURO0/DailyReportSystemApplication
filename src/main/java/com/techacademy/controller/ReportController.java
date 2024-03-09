@@ -46,19 +46,23 @@ public class ReportController {
         if( userDetail.getEmployee().getRole().toString().equals(roleAdmin)) {
             System.out.println("ADMIN権限処理");
 
-            model.addAttribute("reportList", reportService.findAll());
-            model.addAttribute("listSize", reportService.findAll().size());
+            // 先にメソッドの呼び出しを行う（同じメソッドを複数回呼び出すことを防止するため）
+            List<Report> repsAdmin = reportService.findAll();
+
+            model.addAttribute("reportList", repsAdmin);
+            model.addAttribute("listSize", repsAdmin.size());
 
         }else {
             System.out.println("GENERAL権限処理");
 
-            // 20240309_work:エラーが発生するため、正しい取得処理を実装する
-            model.addAttribute("reportList", reportService.findCode(userDetail));
-            // 20240309_work:sizeを使用できる型で仕様の件数取得処理を実装する必要がある
-            model.addAttribute("listSize", reportService.findCode(userDetail).size());
+            // 先にメソッドの呼び出しを行う（同じメソッドを複数回呼び出すことを防止するため）
+            List<Report> repsGeneral = reportService.findByCode(userDetail);
+
+            // 取得インスタンスを複数回利用
+            model.addAttribute("reportList", repsGeneral);
+            model.addAttribute("listSize", repsGeneral.size());
+
         }
-        // debug用
-        //model.addAttribute("listSize", reportService.findCode(userDetail).size());
 
         return "reports/list";
     }
