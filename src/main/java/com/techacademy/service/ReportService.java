@@ -1,12 +1,12 @@
 // tagHattoriWork
 package com.techacademy.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,12 +33,12 @@ public class ReportService {
 
         System.out.println("日報保存");
 
-        // 従業員番号重複チェック
-        /*
-        if (findByCode(employee.getCode()) != null) {
-            return ErrorKinds.DUPLICATE_ERROR;
+        // 画面で表示中の従業員 かつ 入力した日付のエラーチェック
+        // (ただし、画面で表示中の日報データは除く)
+        ErrorKinds result = findByReportDate(report.getReportDate(), userDetail.getEmployee());
+        if (ErrorKinds.CHECK_OK != result) {
+            return result;
         }
-        */
 
         report.setDeleteFlg(false);
         report.setEmployee(userDetail.getEmployee());
@@ -52,7 +52,8 @@ public class ReportService {
 
     // 日報削除
     @Transactional
-    public ErrorKinds delete(Integer id, UserDetail userDetail) {
+    //public ErrorKinds delete(Integer id, UserDetail userDetail) {
+    public ErrorKinds delete(Integer id) {
 
         Report report = findById(id);
 
@@ -73,7 +74,6 @@ public class ReportService {
         System.out.println("日報更新 update処理開始");
 
         // 従業員コードからパラメータ引継ぎ用employeeをひっぱってくる
-        //Employee employee_old = findByCode(code);
         Report report_old = findById(id);
 
         System.out.println("日報更新 パラメータ before");
@@ -87,21 +87,12 @@ public class ReportService {
         System.out.println("更新日時:"+report_old.getUpdatedAt());
         System.out.println("/*******************************/");
 
-
-        // パスワードチェック
-/*
-        if ( !("".equals(employee.getPassword())) ) {
-            // パスワードが空白でない場合
-            ErrorKinds result = employeePasswordCheck(employee);
-            if (ErrorKinds.CHECK_OK != result) {
-                return result;
-            }
-        } else {
-            // パスワードが空白の場合
-            // 前回の値を引き継ぐ
-            employee.setPassword(employee_old.getPassword());
+        // 画面で表示中の従業員 かつ 入力した日付のエラーチェック
+        // (ただし、画面で表示中の日報データは除く)
+        ErrorKinds result = findByReportDate(report.getReportDate(), employee);
+        if (ErrorKinds.CHECK_OK != result) {
+            return result;
         }
-*/
 
         report.setId(id);
 
@@ -132,7 +123,6 @@ public class ReportService {
 
 
     // 日報一覧表示処理
-    //@PreAuthorize("hasAuthority('ADMIN')")
     public List<Report> findAll() {
         return reportRepository.findAll();
     }
@@ -157,22 +147,38 @@ public class ReportService {
     }
 
     // 指定した従業員の日報全てを検索
-    // 2024/03/06_work
-    // public Report findByCode(String code) {
-    // public Report findByCode(Employee employee) {
-    // public Report findByCode(UserDetail userDetail) {
     public List<Report> findByCode(UserDetail userDetail) {
-
-        // findByIdで検索
-        // Optional<Report> option = reportRepository.findById(code);
-        // Optional<Report> option =
-        // reportRepository.findByCode(userDetail.getEmployee().getCode());
-        //Optional<Report> option = reportRepository.findByEmployee(userDetail.getEmployee());
+        // findByEmployeeで検索
         List<Report> reps = reportRepository.findByEmployee(userDetail.getEmployee());
 
-        // 取得できなかった場合はnullを返す
-        //Report report = option.orElse(null);
         return reps;
+    }
+
+    // 削除されていない日報全てを検索
+    public List<Report> findByDeleteFlg() {
+        // findByDeleteFlgで削除されていない日報を検索
+        List<Report> reps = reportRepository.findByDeleteFlg(false);
+
+        return reps;
+    }
+
+    // 指定した従業員の日報全てを検索する
+    // test
+    //private ErrorKinds findByReportDate(LocalDate checkReportDate, UserDetail userDetail) {
+    private ErrorKinds findByReportDate(LocalDate checkReportDate, Employee employee) {
+        // findByEmployeeで検索
+        //List<Report> reps = reportRepository.findByEmployee(userDetail.getEmployee());
+        List<Report> reps = reportRepository.findByEmployee(employee);
+
+        // 日報のリスト（reportList）を拡張for文を使って繰り返し
+        for (Report report : reps) {
+            if(report.getReportDate().equals(checkReportDate)) {
+                System.out.println("同一日付日報エラー");
+                return ErrorKinds.DATECHECK_ERROR;
+            }
+        }
+
+        return ErrorKinds.CHECK_OK;
     }
 
 }

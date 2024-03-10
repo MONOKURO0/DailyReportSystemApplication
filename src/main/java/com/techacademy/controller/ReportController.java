@@ -46,12 +46,17 @@ public class ReportController {
         if( userDetail.getEmployee().getRole().toString().equals(roleAdmin)) {
             System.out.println("ADMIN権限処理");
 
+            // work_20240310:従業員削除後に、日報一覧を表示しようとすると、日報の削除フラグはセットされているが
+            //               削除した従業員に対しても従業員idでのリスト検索をかけようとしてエラーが発生している？
+
             // 先にメソッドの呼び出しを行う（同じメソッドを複数回呼び出すことを防止するため）
             List<Report> repsAdmin = reportService.findAll();
+            //List<Report> repsAdmin = reportService.findByDeleteFlg();
+
+            System.out.println("ADMIN権限処理数："+repsAdmin.size()); // test
 
             model.addAttribute("reportList", repsAdmin);
             model.addAttribute("listSize", repsAdmin.size());
-
         }else {
             System.out.println("GENERAL権限処理");
 
@@ -61,7 +66,6 @@ public class ReportController {
             // 取得インスタンスを複数回利用
             model.addAttribute("reportList", repsGeneral);
             model.addAttribute("listSize", repsGeneral.size());
-
         }
 
         return "reports/list";
@@ -88,10 +92,10 @@ public class ReportController {
     // tagHattoriWork
     // 日報更新画面
     @GetMapping(value = "/{id}/update")
+    //public String edit(@PathVariable Integer id, Model model) {
     public String edit(@PathVariable Integer id, Model model) {
         System.out.println("日報更新 Get");
 
-        //model.addAttribute("employee", employeeService.findByCode(code));
         model.addAttribute("report", reportService.findById(id));
 
         return "reports/update";
@@ -134,7 +138,8 @@ public class ReportController {
     // 日報削除処理
     @PostMapping(value = "/{id}/delete")
     public String delete(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
-        ErrorKinds result = reportService.delete(id, userDetail);
+        //ErrorKinds result = reportService.delete(id, userDetail);
+        ErrorKinds result = reportService.delete(id);
 
         if (ErrorMessage.contains(result)) {
             model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
@@ -147,9 +152,6 @@ public class ReportController {
 
     // 日報更新処理
     @PostMapping(value = "/{id}/update")
-    //public String update(@Validated Report report, BindingResult res, @PathVariable int id, Model model ) {
-    //public String update(@PathVariable int id, @AuthenticationPrincipal UserDetail userDetail, Model model, @Validated Report report, BindingResult res) {
-    //public String update(@Validated Report report, BindingResult res, @PathVariable Integer id, Model model, @AuthenticationPrincipal UserDetail userDetail ) {
     public String update(@Validated Report report, BindingResult res, @PathVariable Integer id, Model model, @AuthenticationPrincipal UserDetail userDetail ) {
 
         System.out.println("日報更新 Post");
@@ -157,33 +159,36 @@ public class ReportController {
         // 入力チェック
         if (res.hasErrors()) {
             System.out.println("日報更新 hasErrors");
+            // work_20240309:入力エラーを表示できる状態で返せない
+            //              report.employee.name(というよりreport.employee?)がnullになっているっぽい
+            // 20240310:解決済み
+
+            //model.addAttribute("report", reportService.findById(id)); reportService.findById(id).getEmployee()
+            //model.addAttribute("report.employee", reportService.findById(id).getEmployee());
+            //model.addAttribute("report.employee", "テストだよ！");
+            report.setEmployee(reportService.findById(id).getEmployee());
 
             //return edit(id, model);
             return "reports/update";
         }
 
         try {
-            // 20240309_work:employeeがnullになる問題
-            //ErrorKinds result = reportService.update(report, id);
-            ErrorKinds result = reportService.update(report, id, userDetail.getEmployee());
+            ErrorKinds result = reportService.update(report, id, reportService.findById(id).getEmployee());
 
             if (ErrorMessage.contains(result)) {
                 System.out.println("日報更新 ErrorMessage");
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
                 return edit(id, model);
-                //return edit(Integer.parseInt(id), model);
             }
 
         } catch (DataIntegrityViolationException e) {
             // 想定外の問題が発生した場合、従業員更新画面に戻す。
             System.out.println("日報更新 想定外");
             return edit(id, model);
-            //return edit(Integer.parseInt(id), model);
         }
 
         System.out.println("日報更新 redirect");
         return "redirect:/reports";
-
     }
 
 }

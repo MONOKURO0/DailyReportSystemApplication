@@ -32,6 +32,7 @@
                                         <div class="col-md-7">
                                             <input class="form-control" type="date" th:field="*{reportDate}" th:errorclass="err" id="reportDate">
                                             <span th:errors="*{reportDate}" class="text-danger"></span>
+                                            <span th:if="${reportDateError} neq null" th:text="${reportDateError}" class="text-danger"></span>
                                         </div>
                                     </div>
 
@@ -63,10 +64,21 @@
 
                                 </div>
 
+                                <div class="mt-5 row g-1">
+                                    <div class="col-auto">
+                                        <input type="submit" value="更新" class="btn btn-primary">
+                                    </div>
+                                    <div class="col-auto">
+                                        <a th:href="@{/reports}" class="btn btn-primary">戻る</a>
+                                    </div>
+                                </div>
+                                <!--
                                 <p class="mt-5">
                                     <input type="submit" value="更新" class="btn btn-primary">
                                     <a th:href="@{/reports}" class="btn btn-primary">戻る</a>
                                 </p>
+                                -->
+
                             </form>
 
                         </div>
