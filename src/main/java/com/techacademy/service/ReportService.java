@@ -85,9 +85,11 @@ public class ReportService {
 
         // 画面で表示中の従業員 かつ 入力した日付のエラーチェック
         // (ただし、画面で表示中の日報データは除く)
-        ErrorKinds result = findByReportDate(report.getReportDate(), employee);
-        if (ErrorKinds.CHECK_OK != result) {
-            return result;
+        if(!report.getReportDate().equals(report_old.getReportDate())) {
+            ErrorKinds result = findByReportDate(report.getReportDate(), employee);
+            if (ErrorKinds.CHECK_OK != result) {
+                return result;
+            }
         }
 
         report.setId(id);
