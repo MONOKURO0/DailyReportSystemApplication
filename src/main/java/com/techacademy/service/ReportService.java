@@ -147,9 +147,12 @@ public class ReportService {
     }
 
     // 指定した従業員の日報全てを検索
-    public List<Report> findByCode(UserDetail userDetail) {
+    //public List<Report> findByCode(UserDetail userDetail) {
+    public List<Report> findByEmployee(Employee employee) {
+
         // findByEmployeeで検索
-        List<Report> reps = reportRepository.findByEmployee(userDetail.getEmployee());
+        //List<Report> reps = reportRepository.findByEmployee(userDetail.getEmployee());
+        List<Report> reps = reportRepository.findByEmployee(employee);
 
         return reps;
     }

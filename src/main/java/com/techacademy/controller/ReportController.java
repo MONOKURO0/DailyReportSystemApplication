@@ -61,7 +61,8 @@ public class ReportController {
             System.out.println("GENERAL権限処理");
 
             // 先にメソッドの呼び出しを行う（同じメソッドを複数回呼び出すことを防止するため）
-            List<Report> repsGeneral = reportService.findByCode(userDetail);
+            //List<Report> repsGeneral = reportService.findByCode(userDetail);
+            List<Report> repsGeneral = reportService.findByEmployee(userDetail.getEmployee());
 
             // 取得インスタンスを複数回利用
             model.addAttribute("reportList", repsGeneral);
