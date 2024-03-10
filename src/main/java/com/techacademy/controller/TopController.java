@@ -17,7 +17,6 @@ public class TopController {
     @GetMapping(value = "/")
     public String top() {
         // tagHattoriWork
-        //return "redirect:/employees";
         return "redirect:/reports";
     }
 

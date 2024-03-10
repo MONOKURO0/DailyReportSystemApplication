@@ -46,14 +46,8 @@ public class ReportController {
         if( userDetail.getEmployee().getRole().toString().equals(roleAdmin)) {
             System.out.println("ADMIN権限処理");
 
-            // work_20240310:従業員削除後に、日報一覧を表示しようとすると、日報の削除フラグはセットされているが
-            //               削除した従業員に対しても従業員idでのリスト検索をかけようとしてエラーが発生している？
-
             // 先にメソッドの呼び出しを行う（同じメソッドを複数回呼び出すことを防止するため）
             List<Report> repsAdmin = reportService.findAll();
-            //List<Report> repsAdmin = reportService.findByDeleteFlg();
-
-            System.out.println("ADMIN権限処理数："+repsAdmin.size()); // test
 
             model.addAttribute("reportList", repsAdmin);
             model.addAttribute("listSize", repsAdmin.size());
@@ -61,7 +55,6 @@ public class ReportController {
             System.out.println("GENERAL権限処理");
 
             // 先にメソッドの呼び出しを行う（同じメソッドを複数回呼び出すことを防止するため）
-            //List<Report> repsGeneral = reportService.findByCode(userDetail);
             List<Report> repsGeneral = reportService.findByEmployee(userDetail.getEmployee());
 
             // 取得インスタンスを複数回利用
@@ -93,7 +86,6 @@ public class ReportController {
     // tagHattoriWork
     // 日報更新画面
     @GetMapping(value = "/{id}/update")
-    //public String edit(@PathVariable Integer id, Model model) {
     public String edit(@PathVariable Integer id, Model model) {
         System.out.println("日報更新 Get");
 
@@ -104,7 +96,6 @@ public class ReportController {
 
     // 日報新規登録処理
     @PostMapping(value = "/add")
-    //public String add(@Validated Report report, @AuthenticationPrincipal UserDetail userDetail, BindingResult res, Model model) {
     public String add(@Validated Report report, BindingResult res, Model model, @AuthenticationPrincipal UserDetail userDetail) {
         System.out.println("日報新規登録 Post");
 
@@ -113,14 +104,12 @@ public class ReportController {
             System.out.println("日報新規登録 入力エラー");
 
             return create(report);
-            //return "reports/new";
         }
 
         // 論理削除を行った従業員番号を指定すると例外となるためtry~catchで対応
         // (findByIdでは削除フラグがTRUEのデータが取得出来ないため)
         try {
             ErrorKinds result = reportService.save(report, userDetail);
-            //ErrorKinds result = reportService.save(report);
 
             if (ErrorMessage.contains(result)) {
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
@@ -139,7 +128,6 @@ public class ReportController {
     // 日報削除処理
     @PostMapping(value = "/{id}/delete")
     public String delete(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
-        //ErrorKinds result = reportService.delete(id, userDetail);
         ErrorKinds result = reportService.delete(id);
 
         if (ErrorMessage.contains(result)) {
@@ -160,16 +148,9 @@ public class ReportController {
         // 入力チェック
         if (res.hasErrors()) {
             System.out.println("日報更新 hasErrors");
-            // work_20240309:入力エラーを表示できる状態で返せない
-            //              report.employee.name(というよりreport.employee?)がnullになっているっぽい
-            // 20240310:解決済み
 
-            //model.addAttribute("report", reportService.findById(id)); reportService.findById(id).getEmployee()
-            //model.addAttribute("report.employee", reportService.findById(id).getEmployee());
-            //model.addAttribute("report.employee", "テストだよ！");
             report.setEmployee(reportService.findById(id).getEmployee());
 
-            //return edit(id, model);
             return "reports/update";
         }
 

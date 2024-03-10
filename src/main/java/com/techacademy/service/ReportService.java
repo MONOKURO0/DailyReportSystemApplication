@@ -27,8 +27,6 @@ public class ReportService {
 
     // 日報保存
     @Transactional
-    //public ErrorKinds save(Report report) {
-    //public ErrorKinds save(Report report, Employee employee) {
     public ErrorKinds save(Report report, UserDetail userDetail) {
 
         System.out.println("日報保存");
@@ -52,7 +50,6 @@ public class ReportService {
 
     // 日報削除
     @Transactional
-    //public ErrorKinds delete(Integer id, UserDetail userDetail) {
     public ErrorKinds delete(Integer id) {
 
         Report report = findById(id);
@@ -68,7 +65,6 @@ public class ReportService {
 
     // 日報更新
     @Transactional
-    //public ErrorKinds update(Report report, Integer id) {
     public ErrorKinds update(Report report, Integer id, Employee employee) {
 
         System.out.println("日報更新 update処理開始");
@@ -127,14 +123,12 @@ public class ReportService {
         return reportRepository.findAll();
     }
 
-    // 日報一覧表示処理
+    // 指定した従業員の日報一覧表示処理
+    /*
     public List<Report> findCode(UserDetail userDetail) {
-        //return reportRepository.RfindByEmployee(userDetail.getEmployee());
-        //return reportRepository.findAll();
-        //Optional<Report> option = reportRepository.findAllById(null)
-
         return userDetail.getEmployee().getReportList();
     }
+    */
 
     // 1件を検索
     public Report findById(Integer id) {
@@ -147,11 +141,9 @@ public class ReportService {
     }
 
     // 指定した従業員の日報全てを検索
-    //public List<Report> findByCode(UserDetail userDetail) {
     public List<Report> findByEmployee(Employee employee) {
 
         // findByEmployeeで検索
-        //List<Report> reps = reportRepository.findByEmployee(userDetail.getEmployee());
         List<Report> reps = reportRepository.findByEmployee(employee);
 
         return reps;
@@ -166,11 +158,8 @@ public class ReportService {
     }
 
     // 指定した従業員の日報全てを検索する
-    // test
-    //private ErrorKinds findByReportDate(LocalDate checkReportDate, UserDetail userDetail) {
     private ErrorKinds findByReportDate(LocalDate checkReportDate, Employee employee) {
         // findByEmployeeで検索
-        //List<Report> reps = reportRepository.findByEmployee(userDetail.getEmployee());
         List<Report> reps = reportRepository.findByEmployee(employee);
 
         // 日報のリスト（reportList）を拡張for文を使って繰り返し

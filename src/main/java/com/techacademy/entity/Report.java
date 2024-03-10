@@ -60,12 +60,6 @@ public class Report {
 
     // 社員番号(従業員ID)
     // 物理名：employee_code
-    /*
-    @Column(length = 10)
-    @NotEmpty
-    @Length(max = 10)
-    private String employeeCode;
-     */
     // tagHattoriWork
     // リレーション
     @ManyToOne

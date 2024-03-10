@@ -26,7 +26,6 @@ public class EmployeeService {
 
     @Autowired
     // tagHattoriWork
-    //public EmployeeService(EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder) {
     public EmployeeService(EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder, ReportService reportService) {
         this.employeeRepository = employeeRepository;
         this.passwordEncoder = passwordEncoder;
@@ -76,7 +75,6 @@ public class EmployeeService {
         /* 削除対象の従業員に紐づいている日報情報の削除：ここから */
 
         // 削除対象の従業員（employee）に紐づいている、日報のリスト（reportList）を取得
-        //List<Report> reportList = reportService.findByCode(userDetail);
         List<Report> reportList = reportService.findByEmployee(findByCode(code));
 
         // 日報のリスト（reportList）を拡張for文を使って繰り返し
